@@ -23,6 +23,15 @@ function calculateBMI(weight, height) {
 }
 
 /**
+ * Дневная норма воды — по общепринятому ориентиру 30 мл на 1 кг веса.
+ * @param {number} weight вес в кг
+ * @returns {number} норма в литрах
+ */
+function calculateWaterNorm(weight) {
+  return Math.round(((weight * 30) / 1000) * 10) / 10
+}
+
+/**
  * Категории ИМТ по стандартной классификации ВОЗ: название и короткая
  * подсказка о том, что это значение означает.
  */
@@ -77,6 +86,7 @@ function calculateCalories(input) {
     bmi,
     bmiCategoryLabel: bmiCategory.label,
     bmiHint: bmiCategory.hint,
+    water: calculateWaterNorm(input.weight),
   }
 }
 
@@ -93,6 +103,7 @@ const resultEls = {
   bmi: document.getElementById('result-bmi'),
   bmiCategory: document.getElementById('result-bmi-category'),
   bmiHint: document.getElementById('result-bmi-hint'),
+  water: document.getElementById('result-water'),
 }
 
 function showError(message) {
@@ -112,6 +123,7 @@ function renderResults(result) {
   resultEls.bmi.textContent = result.bmi
   resultEls.bmiCategory.textContent = result.bmiCategoryLabel
   resultEls.bmiHint.textContent = result.bmiHint
+  resultEls.water.textContent = `${result.water} л`
   resultsEl.hidden = false
 }
 
