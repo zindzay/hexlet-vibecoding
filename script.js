@@ -12,12 +12,36 @@ function calculateBMR({ gender, age, height, weight }) {
 }
 
 /**
- * Полный расчёт: BMR, поддержание, похудение и набор массы.
+ * Индекс массы тела (BMI) — соотношение веса и роста.
+ * @param {number} weight вес в кг
+ * @param {number} height рост в см
+ * @returns {number}
+ */
+function calculateBMI(weight, height) {
+  const heightM = height / 100
+  return Math.round((weight / (heightM * heightM)) * 10) / 10
+}
+
+/**
+ * Категория ИМТ по стандартной классификации ВОЗ.
+ * @param {number} bmi
+ * @returns {string}
+ */
+function getBMICategory(bmi) {
+  if (bmi < 18.5) return 'Недостаточный вес'
+  if (bmi < 25) return 'Норма'
+  if (bmi < 30) return 'Избыточный вес'
+  return 'Ожирение'
+}
+
+/**
+ * Полный расчёт: BMR, поддержание, похудение, набор массы и ИМТ.
  * @param {{gender: 'male'|'female', age: number, height: number, weight: number, activityFactor: number}} input
  */
 function calculateCalories(input) {
   const bmr = calculateBMR(input)
   const maintenance = bmr * input.activityFactor
+  const bmi = calculateBMI(input.weight, input.height)
 
   return {
     bmr: Math.round(bmr),
@@ -26,6 +50,8 @@ function calculateCalories(input) {
     loss: Math.round(maintenance - 500),
     mildGain: Math.round(maintenance + 250),
     gain: Math.round(maintenance + 500),
+    bmi,
+    bmiCategory: getBMICategory(bmi),
   }
 }
 
@@ -39,6 +65,8 @@ const resultEls = {
   loss: document.getElementById('result-loss'),
   mildGain: document.getElementById('result-mild-gain'),
   gain: document.getElementById('result-gain'),
+  bmi: document.getElementById('result-bmi'),
+  bmiCategory: document.getElementById('result-bmi-category'),
 }
 
 function showError(message) {
@@ -55,6 +83,8 @@ function renderResults(result) {
   resultEls.loss.textContent = `${result.loss} ккал`
   resultEls.mildGain.textContent = `${result.mildGain} ккал`
   resultEls.gain.textContent = `${result.gain} ккал`
+  resultEls.bmi.textContent = result.bmi
+  resultEls.bmiCategory.textContent = result.bmiCategory
   resultsEl.hidden = false
 }
 
