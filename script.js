@@ -23,15 +23,47 @@ function calculateBMI(weight, height) {
 }
 
 /**
+ * Дневная норма воды — по общепринятому ориентиру 30 мл на 1 кг веса.
+ * @param {number} weight вес в кг
+ * @returns {number} норма в литрах
+ */
+function calculateWaterNorm(weight) {
+  return Math.round(((weight * 30) / 1000) * 10) / 10
+}
+
+/**
+ * Категории ИМТ по стандартной классификации ВОЗ: название и короткая
+ * подсказка о том, что это значение означает.
+ */
+const BMI_CATEGORIES = [
+  {
+    max: 18.5,
+    label: 'Недостаточный вес',
+    hint: 'Стоит проконсультироваться с врачом о наборе веса',
+  },
+  {
+    max: 25,
+    label: 'Норма',
+    hint: 'Вес в пределах здоровой нормы для вашего роста',
+  },
+  {
+    max: 30,
+    label: 'Избыточный вес',
+    hint: 'Стоит обратить внимание на питание и физическую активность',
+  },
+  {
+    max: Infinity,
+    label: 'Ожирение',
+    hint: 'Повышенный риск для здоровья, рекомендуется консультация врача',
+  },
+]
+
+/**
  * Категория ИМТ по стандартной классификации ВОЗ.
  * @param {number} bmi
- * @returns {string}
  */
 function getBMICategory(bmi) {
-  if (bmi < 18.5) return 'Недостаточный вес'
-  if (bmi < 25) return 'Норма'
-  if (bmi < 30) return 'Избыточный вес'
-  return 'Ожирение'
+  return BMI_CATEGORIES.find((category) => bmi < category.max)
 }
 
 /**
@@ -42,6 +74,7 @@ function calculateCalories(input) {
   const bmr = calculateBMR(input)
   const maintenance = bmr * input.activityFactor
   const bmi = calculateBMI(input.weight, input.height)
+  const bmiCategory = getBMICategory(bmi)
 
   return {
     bmr: Math.round(bmr),
@@ -51,7 +84,9 @@ function calculateCalories(input) {
     mildGain: Math.round(maintenance + 250),
     gain: Math.round(maintenance + 500),
     bmi,
-    bmiCategory: getBMICategory(bmi),
+    bmiCategoryLabel: bmiCategory.label,
+    bmiHint: bmiCategory.hint,
+    water: calculateWaterNorm(input.weight),
   }
 }
 
@@ -67,6 +102,8 @@ const resultEls = {
   gain: document.getElementById('result-gain'),
   bmi: document.getElementById('result-bmi'),
   bmiCategory: document.getElementById('result-bmi-category'),
+  bmiHint: document.getElementById('result-bmi-hint'),
+  water: document.getElementById('result-water'),
 }
 
 function showError(message) {
@@ -84,7 +121,9 @@ function renderResults(result) {
   resultEls.mildGain.textContent = `${result.mildGain} ккал`
   resultEls.gain.textContent = `${result.gain} ккал`
   resultEls.bmi.textContent = result.bmi
-  resultEls.bmiCategory.textContent = result.bmiCategory
+  resultEls.bmiCategory.textContent = result.bmiCategoryLabel
+  resultEls.bmiHint.textContent = result.bmiHint
+  resultEls.water.textContent = `${result.water} л`
   resultsEl.hidden = false
 }
 
